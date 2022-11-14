@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ page_title }} - Castine Trees</title>
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+	<link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+	<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+
+
+
+</head>
+
+<body>
+
+	<div class="container">
+
+		<header class="py-3 border-bottom">
+			<div class="container d-flex flex-wrap justify-content-center">
+				<a href="/inventory" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+					<span class="fs-4" style="font-family: 'Alegreya SC Medium'; font-size: 2rem !important">Castine Elm Trees</span>
+				</a>
+
+				<ul class="nav nav-pills" id="main-nav">
+					<li class="nav-item"><a href="/inventory/" class="nav-link">Inventory</a></li>
+					<li class="nav-item"><a href="/inventory/map" class="nav-link">Map</a></li>
+					<li class="nav-item"><a href="/inventory/report" class="nav-link">Report</a></li>
+					<li class="nav-item"><a href="/inventory/tasks" class="nav-link">Action Items</a></li>
+				</ul>
+			</div>
+
+		</header>
+
+		<nav class="mb-4 py-2">
+			<div class="container d-flex flex-wrap">
+				<ul class="nav me-auto">
+				</ul>
+				<ul class="nav">
+					{% if user.is_authenticated %}
+					<li class="nav-item text-muted">
+						Logged in as {{ user.first_name }} {{ user.last_name }}. <a href="/admin/logout/?next={{ request.path | urlencode }}">Log out</a>
+					</li>
+					{% else %}
+					<li class="nav-item"><a href="/admin/login/?next={{ request.path | urlencode }}" >Sign in</a></li>
+					{% endif %}
+		
+				</ul>
+			</div>
+		</nav>
+
+
+
+		{% block content %}
+		{% endblock %}
+
+
+
+
+
+		<footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+			<div class="col-md-4 d-flex align-items-center">
+
+				<span class="mb-3 mb-md-0 text-muted">Castine Elm Trees</span>
+			</div>
+
+			<ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+				<li class="ms-3"><a class="text-muted" href="/inventory/export/">Export Data</a></li>
+				<li class="ms-3"><a class="text-muted" href="https://castine.me.us/wp-content/uploads/2013/11/Elm-Tree-Ordinance-2009-04-04.pdf">Elm Tree Ordinance</a></li>
+				<li class="ms-3"><a class="text-muted" href="/static/Best%20Practices%20for%20Construction,%20Tree%20Committee%204:22.pdf">Construction Best Practices</a></li>
+			</ul>
+		</footer>
+	</div>
+
+	<script>
+		const nav = document.getElementById('main-nav');
+		const links = nav.childNodes;
+		
+		// iterate over all child nodes
+		links.forEach(li => {
+			if (li.tagName == "LI") {
+				var anchor = li.firstChild;
+				if (anchor.href.trimEnd('/') == window.location.href.trimEnd('/')) {
+					anchor.classList.add("active");
+					anchor.setAttribute("aria-current", "page");
+				}
+			}
+		});
+	</script>
+
+	{% block script %}
+	{% endblock %}
+
+
+</body>
+
+</html>

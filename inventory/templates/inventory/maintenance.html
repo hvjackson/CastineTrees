@@ -1,0 +1,255 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+
+
+<div class="row">
+	<div class="col">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/inventory">Inventory</a></li>
+				<li class="breadcrumb-item"><a href="/inventory/tree/{{ tree.tag }}">Tree # {{ tree.tag }}</a></li>
+				<li class="breadcrumb-item active" aria-current="page">New Maintenance Log Entry</li>
+			</ol>
+		</nav>
+
+	</div>
+</div>
+
+
+<div class="row">
+	<div class="col-12 col-lg-8 col-xl-6">
+		<form method="post">
+			{% csrf_token %}
+			<input type="hidden" name="referer" value="{{ request.META.HTTP_REFERER }}">
+
+			<div class="accordion" id="accordionPanelsStayOpenExample">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="panelsStayOpen-headingOne">
+						<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+							<h5>General Tree Condition</h5>
+						</button>
+					</h2>
+					<div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+						<div class="accordion-body">
+							<div class="mb-3">
+								<label class="form-label">Entry Date</label>
+								<input type="date" class="form-control" id="date" name="date">
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Overall Condition</label>
+								<select class="form-select" name="overall_condition">
+									<option value="" selected>(not set)</option>
+									<option value="Q">Excellent</option>
+									<option value="N">Good</option>
+									<option value="W">Poor</option>
+									<option value="D">Dead</option>
+									<option value="M">Missing</option>
+
+								</select>
+							</div>
+
+
+							<div class="mb-3">
+								<label class="form-label">Dutch Elm Disease</label>
+								<select class="form-select" name="ded_status">
+									<option value="" selected>(not set)</option>
+									<option value="N">None apparent</option>
+									<option value="S">Suspected</option>
+									<option value="C">Confirmed</option>
+								</select>
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label">Remarks</label>
+								<textarea maxlength="200" class="form-control" name="maintenance_remarks" placeholder="Optional remarks"></textarea>
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+							<h5>Detailed Condition Report</h5>
+						</button>
+					</h2>
+					<div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+						<div class="accordion-body">
+							<div class="mb-3">
+								<label class="form-label">Diameter Breast Height (inches)</label>
+								<input type="text" class="form-control" name="dbh">
+								<div class="form-text">If multiple trunks, separate by commas</div>
+														
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label">General Crown Condition</label>
+								<select class="form-select" name="crown_condition">
+									<option value="" selected>(not set)</option>
+									<option value="E">Excellent</option>
+									<option value="VG">Very Good</option>
+									<option value="G">Good</option>
+									<option value="E">Fair</option>
+									<option value="P">Poor</option>
+									<option value="VP">Very Poor</option>
+								</select>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Foliage Condition</label>
+								<select class="form-select" name="foliage_condition">
+									<option value="" selected>(not set)</option>
+									<option value="E">Excellent</option>
+									<option value="VG">Very Good</option>
+									<option value="G">Good</option>
+									<option value="E">Fair</option>
+									<option value="P">Poor</option>
+									<option value="VP">Very Poor</option>
+								</select>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Structure Condition</label>
+								<select class="form-select" name="structure_condition">
+									<option value="" selected>(not set)</option>
+									<option value="E">Excellent</option>
+									<option value="VG">Very Good</option>
+									<option value="G">Good</option>
+									<option value="E">Fair</option>
+									<option value="P">Poor</option>
+									<option value="VP">Very Poor</option>
+								</select>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Deadwood Condition</label>
+								<select class="form-select" name="deadwood_condition">
+									<option value="" selected>(not set)</option>
+									<option value="E">Excellent</option>
+									<option value="VG">Very Good</option>
+									<option value="G">Good</option>
+									<option value="E">Fair</option>
+									<option value="P">Poor</option>
+									<option value="VP">Very Poor</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="panelsStayOpen-headingThree">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="true" aria-controls="panelsStayOpen-collapseThree">
+							<h5>Maintenance Performed</h5>
+						</button>
+					</h2>
+					<div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+						<div class="accordion-body">
+
+							<div class="mb-3">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="arbotectCheckbox" id="arbotectCheckbox">
+									<label class="form-check-label" for="arbotectCheckbox">
+										Arbotect S-20 application
+									</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="alamoCheckbox" id="alamoCheckbox">
+									<label class="form-check-label" for="alamoCheckbox">
+										Alamo application
+									</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="cambistatCheckbox" id="cambistatCheckbox">
+									<label class="form-check-label" for="cambistatCheckbox">
+										Cambistat application
+									</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="dedTestedCheckbox" id="dedTestedCheckbox">
+									<label class="form-check-label" for="dedTestedCheckbox">
+										Tested for DED
+									</label>
+
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="prunedCheckbox" id="prunedCheckbox">
+									<label class="form-check-label" for="prunedCheckbox">
+										Pruned
+									</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="removedCheckbox" id="removedCheckbox">
+									<label class="form-check-label" for="removedCheckbox">
+										Removed
+									</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" name="stumpGroundCheckbox" id="stumpGroundCheckbox">
+									<label class="form-check-label" for="stumpGroundCheckbox">
+										Stump ground
+									</label>
+								</div>
+							</div>
+
+							<div class="form-text">If DED status is known or suspected, enter in "General Tree Condition" section above</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="panelsStayOpen-headingFour">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false" aria-controls="panelsStayOpen-collapseFour">
+							<h5>Follow-Up Action Item</h5>
+						</button>
+					</h2>
+					<div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingFour">
+						<div class="accordion-body">
+
+							<div>
+								<label for="actionItemText" class="form-label">Create a new action item for follow-up:</label>
+								<textarea maxlengt="200" class="form-control" name="actionItemText" id="actionItemText" placeholder="E.g. awaiting DED test results, future maintenance needed"></textarea>
+							</div>
+							
+							<div class="dropdown mt-2">
+							  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Common tasks
+							  </button>
+							  <ul class="dropdown-menu">
+								<li><a class="dropdown-item" onclick="commonDropdown(this)">Needs inspection</a></li>
+								<li><a class="dropdown-item" onclick="commonDropdown(this)">Needs pruning</a></li>
+								<li><a class="dropdown-item" onclick="commonDropdown(this)">Needs removal</a></li>
+								<li><a class="dropdown-item" onclick="commonDropdown(this)">Needs stump grinding</a></li>
+								<li><a class="dropdown-item" onclick="commonDropdown(this)">Awaiting DED test results</a></li>
+							  </ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<button type="submit" class="btn btn-primary mt-3">Submit Log Entry</button>
+		</form>
+	</div>
+
+	<div class="d-none d-lg-block col-lg-4 col-xl-6">
+
+
+	</div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+	document.getElementById("date").valueAsDate = new Date();
+	
+	function commonDropdown(e) {
+		var area = document.getElementById("actionItemText");
+		
+		if (area.value.length > 0)
+			area.value += "; ";
+		
+		area.value += e.innerText;
+	}
+	
+</script>
+{% endblock %}

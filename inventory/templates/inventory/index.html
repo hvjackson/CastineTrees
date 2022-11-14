@@ -1,0 +1,190 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+
+
+<div class="row">
+	<div class="col">
+		<!-- class="collapse"  -->
+		<div id="collapsePanel">
+			<div class="card card-body">
+				<div class="row">
+					<div class="col-6 col-md-3">
+						<label class="form-label">Tree Condition</label>
+						<select class="form-select" id="select-quality">
+							<option value="" selected>(any)</option>
+							<option value="Excellent">Excellent</option>
+							<option value="Good">Good</option>
+							<option value="Poor">Poor</option>
+							<option value="Dead">Dead</option>
+							<option value="Missing">Missing</option>
+						</select>
+					</div>
+					<div class="col-6 col-md-3">
+						<label class="form-label">Existing/Removed</label>
+						<select class="form-select" id="select-removed">
+							<option value="">(any)</option>
+							<option value="False" selected>Existing</option>
+							<option value="True">Removed</option>
+						</select>
+					</div>
+					<div class="col-6 col-md-3">
+						<label class="form-label">Located?</label>
+						<select class="form-select" id="select-location">
+							<option value="" selected>(any)</option>
+							<option value="Located">Located</option>
+							<option value="Missing">Missing / unverified</option>
+							<option value="Add GPS">No location info</option>
+						</select>
+					</div>
+					<div class="col-6 col-md-3">
+						<label class="form-label">Public/Private</label>
+						<select class="form-select" id="select-public">
+							<option value="" selected>(any)</option>
+							<option value="Public">Public</option>
+							<option value="Private">Private</option>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+	</div>
+</div>
+
+
+
+<div class="row">
+	<div class="col">
+
+
+		<div class="table-responsive">
+			<table class="table" id="tree-inventory-table">
+				<thead>
+
+					<tr>
+						<th>Tag #</th>
+						<th>GPS</th>
+						<th>Address</th>
+						<th>Location Remarks</th>
+						<th>Owner (N/F)</th>
+						<th>Public</th>
+						<th>Tree Condition</th>
+						<th>DED Status</th>
+						<th>DED Treatment</th>
+						<th>Removed?</th>
+					</tr>
+
+				</thead>
+
+				<tbody>
+					{% for tree in tree_list %}
+
+					<tr {% if tree.is_removed %} class="table-danger" style="text-decoration:line-through;" {% endif %}>
+						<td {% if tree.tag.isnumeric %} data-order="{{ tree.tag }}" {% else %} data-order="1000" {% endif %}>
+							<a href="/inventory/tree/{{ tree.tag }}/">{{ tree.tag }}</a>
+						</td>
+
+						<td>
+							{% if tree.gps_error_ft == -1 %}
+							Missing
+							{% elif tree.latitude > 0 %}
+							Located
+							{% else %}
+							<a href="/inventory/location/{{ tree.tag }}/">Add GPS</a>
+							{% endif %}
+						</td>
+
+						<td data-order="'{{ tree.street_name }} {{ tree.street_number }}''">{{ tree.street_address }}</td>
+
+						<td>{{ tree.location_remarks }}</td>
+						<td>{{ tree.property_owner }}</td>
+
+
+						<td>
+							{% if tree.is_public %}Public{% else %}Private{% endif %}
+						</td>
+
+						<td>{{ tree.tree_condition }}</td>
+						<td>{{ tree.ded_status }}</td>
+						<td>{{ tree.most_recent_ded_treatment.year }}</td>
+						<td>{{ tree.is_removed }}</td>
+
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+	var table = $('#tree-inventory-table').DataTable({
+		paging: false,
+		//searching: false,
+		info: true,
+		dom: '<"top"i>rt',
+		//			stateSave: true,
+		columnDefs: [{
+			target: 9,
+			visible: false,
+		}, ],
+		"language": {
+			"info": "Showing _TOTAL_ trees",
+			"infoFiltered": "(filtered from _MAX_ total trees)"
+		}
+	});
+
+
+	table
+		.column(9)
+		.search("False")
+		.draw();
+
+
+	$('#select-quality').on('change', function(e) {
+		var valueSelected = this.value;
+
+		table
+			.column(6)
+			.search(valueSelected)
+			.draw();
+
+	});
+	$('#select-removed').on('change', function(e) {
+		var valueSelected = this.value;
+
+		table
+			.column(9)
+			.search(valueSelected)
+			.draw();
+
+	});
+
+	$('#select-location').on('change', function(e) {
+		var valueSelected = this.value;
+
+		table
+			.column(1)
+			.search(valueSelected)
+			.draw();
+
+	});
+
+	$('#select-public').on('change', function(e) {
+		var valueSelected = this.value;
+
+		table
+			.column(5)
+			.search(valueSelected)
+			.draw();
+
+	});
+</script>
+{% endblock %}

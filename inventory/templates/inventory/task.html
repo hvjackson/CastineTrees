@@ -1,0 +1,129 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col">
+
+		<h3>
+			Action Item
+		</h3>
+
+		<table class="table">
+
+			<thead>
+				<tr>
+					<th></th>
+					<th>Opened</th>
+					<th>Closed</th>
+				</tr>
+
+			<tbody>
+
+				<tr>
+					<th>Date</th>
+					<td>{{ action_item.date_opened }}</td>
+
+					<td>
+						{% if not action_item.is_open %}
+						{{ action_item.date_closed }}
+								{% else %}
+								(still open)
+								{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>User</th>
+					<td> {{ action_item.opened_by }}</td>
+					<td>
+						{% if not action_item.is_open %}
+						{{ action_item.closed_by }}
+							{% endif %}
+					</td>
+				</tr>
+				<tr>
+
+
+					<th>Tree</th>
+					<td colspan="2">
+						{% if action_item.tree_id is not None %}
+
+						<a href="/inventory/tree/{{ action_item.tree.tag }}/">{{ action_item.tree.tag }}</a>
+
+						{% else %}
+						(none)
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>Remarks</th>
+					<td>
+						{{ action_item.action_note }}
+					</td>
+					<td>
+						{{ action_item.closed_note }}
+					</td>
+				</tr>
+
+				{% if not action_item.is_open %}
+				{% endif %}
+
+			</tbody>
+		</table>
+
+	</div>
+</div>
+
+
+
+{% if action_item.is_open %}
+<div class="row">
+	<div class="col-12 col-md-6">
+		<div class="card">
+			<h5 class="card-header">Close Item</h5>
+
+			<div class="card-body">
+				<form method="post">
+					{% csrf_token %}
+					<input type="hidden" name="referer" value="{{ request.META.HTTP_REFERER }}">
+
+					<div class="mb-3">
+						<label class="form-label">Closed Date</label>
+						<input type="date" class="form-control" id="date" name="date">
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Closed Comment</label>
+						<textarea maxlengt="200" class="form-control" name="closedComment" placeholder="(optional)"></textarea>
+					</div>
+
+					{% if user.is_authenticated %}
+					<button type="submit" class="btn btn-primary">Close Action Item</button>
+					{% else %}
+					<a class="btn btn-primary disabled" role="button" aria-disabled="true">Close Action Item</a>
+					{% endif %}
+				</form>
+
+			</div>
+		</div>
+
+	</div>
+</div>
+{% endif %}
+
+
+
+<div class="row">
+	<div class="col">
+		<div class="form-text float-end">
+			If this action item was created in error it can be <a href="/admin/inventory/actionitem/{{ action_item.id }}/change/">deleted from the admin panel</a>.
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+	document.getElementById("date").valueAsDate = new Date();
+</script>
+{% endblock %}

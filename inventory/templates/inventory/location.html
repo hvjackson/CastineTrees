@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+	
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+	
+	
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+
+	
+	
+	
+</head>
+<body>
+
+<div class="container">
+
+	
+	
+	
+  <div class="row">
+	<div class="col">
+		<h3>Update Location for Tree # {{ tree.tag }}</h3>
+		<ol>
+			<li>Hold phone near tree trunk.
+			<li>Wait for GPS error to drop, ideally below 20 ft or so.
+			<li>Click "Save Location" to submit.
+		</ol>
+		<form method="post">
+			{% csrf_token %}
+			
+			<input type="hidden" name="referer" value="{{ request.META.HTTP_REFERER }}" >
+			<div>
+			<label class="form-label">Latitude</label>
+			<input type="text" class="form-control" id="lat" name="lat" >
+			</div>
+			<br>
+			
+			<div>
+			<label class="form-label">Longitude</label>
+			<input type="text" class="form-control" id="long" name="long">
+			</div>
+			<br>
+			<div>
+			<label class="form-label">Error</label>
+			<input type="text" class="form-control" id="err" name="err"> (ft)
+			</div>
+			<br>
+			<div form-check">
+				<input type="checkbox" class="form-check-input" id="approximate" name="approximate">
+				<label class="form-check-label" for="exampleCheck1">Approximate location</label>
+			  </div>
+			<br>
+			<button type="submit" class="btn btn-primary">Save Location</button>
+		</form>
+	</div>
+	</div>
+	</div>
+
+
+<script>
+
+const options = {
+  enableHighAccuracy: true,
+  timeout: Infinity,
+  maximumAge: 0
+};
+
+
+function locationSuccess(position) {
+	const latitude = position.coords.latitude;
+	const longitude = position.coords.longitude;
+
+	const accuracy = position.coords.accuracy;
+	var accuracyFeet = accuracy * 3.28084;
+
+
+	document.getElementById('lat').value = latitude;
+	document.getElementById('long').value = longitude;
+	document.getElementById('err').value = accuracyFeet;
+}
+
+function locationError(error) {
+	if (error.code == 1) {
+		alert("Access to location denied. You may have to enable location sharing in your phone's settings.");
+	}
+	else {
+		alert("Unable to get location data:\r\n" + "Error code: " + error.code + "\r\nMessage: " + error.message);
+	}
+}
+
+navigator.geolocation.watchPosition(locationSuccess, locationError, options);
+	</script>
+</body>
+</html>

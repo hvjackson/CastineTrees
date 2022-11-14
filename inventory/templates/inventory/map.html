@@ -1,0 +1,87 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+		
+		
+		
+	  <div class="row">
+		<div class="col">
+			<div id="map" style="height:800px; width:100%"></div>
+			<p>Tree counts:</p>
+			<ul>
+				<li>{{ tagged_count }} trees with location set</li>
+				<li>{{ untagged_count }} trees missing location</li>
+				<li>{{ removed_count }} removed trees (not shown on map)</li>
+			</ul>
+			<p>Note: only trees with lat/long set are shown on map.</p>
+		</div>
+	  </div>
+
+{% endblock %}
+	  
+	  
+	  {% block script %}
+<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&callback=initMap&v=weekly"
+		defer
+	  ></script>
+	  <script>
+	  
+	  // Initialize and add the map
+	  function initMap() {
+	  
+		const castine = { lat: 44.390492, lng: -68.804612 };
+		
+		function pinSymbol(color) {
+			return {
+				path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+				fillColor: color,
+				fillOpacity: 1,
+				strokeColor: '#000',
+				strokeWeight: 1,
+				scale: 0.8,
+		   };
+		}
+		
+		
+	  
+		const map = new google.maps.Map(document.getElementById("map"), {
+		  zoom: 15,
+		  center: castine,
+		});
+	  
+		{% for tree in tree_list %}
+		{% if tree.latitude > 0 %}
+		
+		
+		{% if tree.is_removed %}
+		{% else %}
+		var marker = new google.maps.Marker({
+		  position: { lat: {{ tree.latitude }}, lng: {{ tree.longitude }} },
+		  label: '{{ tree.tag }}',
+		  url: '/inventory/tree/{{ tree.tag }}',
+		  map: map,
+		  //{% if tree.is_removed %}
+		  //icon: pinSymbol("#F00"),
+		  //{% else %}
+		  //icon: pinSymbol("#0F0"),
+		  //{% endif %}		
+		});
+		{% endif %}	
+	  
+		google.maps.event.addListener(marker, 'click', function() {
+			window.location.href = this.url;
+		});
+		
+		{% endif %}
+		
+		
+		{% endfor %}
+	  }
+	  
+	  window.initMap = initMap;
+	  </script>
+	  {% endblock %}
+
+	
+</body>

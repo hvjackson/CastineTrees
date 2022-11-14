@@ -1,0 +1,167 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+
+
+<div class="row">
+	<div class="col">
+
+		<h3>Open Action Items</h3>
+		<div class="table-responsive  mb-3">
+			<table class="table" id="open-items-table">
+				
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Tree #</th>
+						<th>Comment</th>
+						<th></th>
+					</tr>
+				</thead>
+
+				<tbody>
+					{% for ai in open_action_items %}
+
+					<tr>
+						<td data-order='{{ ai.date_opened|date:"Y-m-d" }}'>{{ ai.date_opened|date:"n/j/Y" }}</td>
+						<td>
+							{% if not ai.tree is None %}
+							<a href="/inventory/tree/{{ ai.tree }}/">{{ ai.tree }}</a>
+							{% endif %}
+						</td>
+						<td>{{ ai.action_note|linebreaksbr }}</td>
+						<td>
+							{% if user.is_authenticated %}
+							<a class="btn btn-light float-end" href="/inventory/task/{{ ai.id}}">Close</a>
+							{% else %}
+							<a class="btn btn-light float-end" href="/admin/login/?next=/inventory/task/{{ ai.id}}">Close</a>
+							{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+
+			<!-- Button trigger modal -->
+			{% if user.is_authenticated %}
+			<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newActionItemModal">
+				Add new action item
+			</button>
+			{% else %}
+			<a class="btn btn-primary" href="/admin/login/?next={{ request.path | urlencode }}" >Add new action item</a>
+			{% endif %}
+
+			<!-- Modal -->
+			<div class="modal fade" id="newActionItemModal" tabindex="-1" aria-labelledby="newActionItemModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form method="post">
+							{% csrf_token %}
+							<input type="hidden" name="referer" value="{{ request.META.HTTP_REFERER }}">
+
+							<div class="modal-header">
+								<h1 class="modal-title fs-5" id="newActionItemModalLabel">Create New Action Item</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<div class="mb-3">
+									<label class="form-label">Tree</label>
+									<select class="form-select" name="targetTree">
+										<option value="" selected>(none)</option>
+										{% for t in trees %}
+										<option value="{{ t.id }}">{{ t.tag }}</option>
+										{% endfor %}
+									</select>
+								</div>
+								<div class="mb-3">
+									<label class="form-label">Date</label>
+									<input type="date" class="form-control" id="date" name="date">
+								</div>
+								<div class="mb-3">
+									<label class="form-label">Remarks</label>
+									<textarea maxlengt="200" class="form-control" name="openedComment" placeholder="(optional)"></textarea>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								<button type="submit" class="btn btn-primary">Save</button>
+							</div>
+
+						</form>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div class="mb-5"></div>
+
+
+
+
+			<h3>Closed Action Items</h3>
+			<div class="table-responsive">
+				<table class="table" id="closed-items-table">
+					<thead>
+
+						<tr>
+							<th>Date</th>
+							<th>Tree #</th>
+							<th>Opened Comment</th>
+							<th>Closed Comment</th>
+							<th></th>
+						</tr>
+
+					</thead>
+
+					<tbody>
+						{% for ai in closed_action_items %}
+
+						<tr>
+							<td data-order='{{ ai.date_opened|date:"Y-m-d" }}'>{{ ai.date_opened|date:"n/j/Y" }}</td>
+							<td>
+								{% if not ai.tree is None %}
+								<a href="/inventory/tree/{{ ai.tree }}/">{{ ai.tree }}</a>
+								{% endif %}
+							</td>
+							<td>{{ ai.action_note|linebreaksbr }}</td>
+							<td>{{ ai.closed_note|linebreaksbr }}</td>
+							<td><a class="float-end" href="/inventory/task/{{ ai.id}}">Detail</a></td>
+
+
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+	document.getElementById("date").valueAsDate = new Date();
+
+	var open_table = $('#open-items-table').DataTable({
+		paging: false,
+		searching: false,
+		info: true,
+
+		"language": {
+			"info": "_TOTAL_ open items"
+		}
+	});
+	var closed_table = $('#closed-items-table').DataTable({
+		paging: false,
+		searching: false,
+		info: true,
+	
+		"language": {
+			"info": "_TOTAL_ closed items"
+		}
+	});
+</script>
+{% endblock %}

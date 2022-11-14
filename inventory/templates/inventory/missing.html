@@ -1,0 +1,106 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/inventory">Inventory</a></li>
+				<li class="breadcrumb-item active" aria-current="page">Tree # {{ tree.tag }}</li>
+			</ol>
+		</nav>
+
+		<table class="table">
+
+
+			<tbody>
+
+				<tr>
+					<th>Tag</th>
+					<td>{{ tree.tag }}
+					{% if tree.old_tag %}
+
+						<span class="form-text">&nbsp;&nbsp;&nbsp;&nbsp;(old tag: {{ tree.old_tag }})</span>
+
+						{% endif %}
+					</td>
+
+				</tr>
+				<tr>
+					<th>Location</th>
+					<td> {% if tree.street_number %}
+						{{ tree.street_number }}
+						{% endif %}
+
+
+						{{ tree.street_name }} ({{ tree.side_of_street }} side)
+						{% if tree.location_remarks %}
+						<br>
+						{{ tree.location_remarks }}
+						{% endif %}
+
+						{% if tree.latitude > 0 %}
+
+						<br>
+						<br>
+
+						<iframe width="450" height="250" frameborder="0" style="border:0" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&maptype=satellite&q={{ tree.latitude }}%2C{{ tree.longitude }}" allowfullscreen>
+						</iframe>
+
+						{% endif %}
+
+					</td>
+				</tr>
+
+				<tr>
+					<th>Property Owner</th>
+					<td>
+						{{ tree.property_owner }}
+					</td>
+				</tr>
+
+
+
+				<tr>
+					<th>Public</th>
+					<td> {% if tree.is_public %}
+						Public
+						{% else %}
+						Private
+						{% endif %}</td>
+				</tr>
+
+
+				<tr>
+					<th>Status</th>
+					{% if tree.is_removed %}
+					<td><span class="badge bg-danger">Removed</span></td>
+					{% elif tree.gps_error_ft == -1 %}
+					<td><span class="badge bg-warning">Missing / unknown status</span><br><p class="text-muted">Location shown is based on 2009 elm tree survey, but the tree was not yet located in 2022.</p></td>
+					{% else %}
+					<td>Existing</td>
+					{% endif %}
+				</tr>
+			</tbody>
+		</table>
+
+		{% if user.is_authenticated %}
+		<a class="float-end" href="/admin/inventory/tree/{{ tree.id }}/change/">Edit Tree Info</a>
+		{% endif %}
+
+
+
+
+
+
+
+
+	</div>
+</div>
+
+
+
+
+
+{% endblock %}
+

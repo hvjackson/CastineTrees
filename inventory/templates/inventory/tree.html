@@ -1,0 +1,233 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/inventory">Inventory</a></li>
+				<li class="breadcrumb-item active" aria-current="page">Tree # {{ tree.tag }}</li>
+			</ol>
+		</nav>
+
+		<table class="table">
+
+
+			<tbody>
+
+				<tr>
+					<th>Tag</th>
+					<td>{{ tree.tag }}
+					{% if tree.old_tag %}
+
+						<span class="form-text">&nbsp;&nbsp;&nbsp;&nbsp;(old tag: {{ tree.old_tag }})</span>
+
+						{% endif %}
+					</td>
+
+				</tr>
+				<tr>
+					<th>Location</th>
+					<td> {% if tree.street_number %}
+						{{ tree.street_number }}
+						{% endif %}
+
+
+						{{ tree.street_name }} ({{ tree.side_of_street }} side)
+						{% if tree.location_remarks %}
+						<br>
+						{{ tree.location_remarks }}
+						{% endif %}
+
+						{% if tree.latitude > 0 %}
+
+						<br>
+						<br>
+
+						<iframe width="450" height="250" frameborder="0" style="border:0" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&maptype=satellite&q={{ tree.latitude }}%2C{{ tree.longitude }}" allowfullscreen>
+						</iframe>
+
+						{% else %}
+						<br />
+						<br />
+						<a class="btn btn-primary btn-sm" role="button" href="/inventory/location/{{ tree.tag }}/">Add GPS Location</a>
+						{% endif %}
+
+					</td>
+				</tr>
+
+
+
+
+
+				<tr>
+					<th>Property Owner</th>
+					<td>
+						{{ tree.property_owner }}
+					</td>
+				</tr>
+
+
+
+				<tr>
+					<th>Public</th>
+					<td> {% if tree.is_public %}
+						Public
+						{% else %}
+						Private
+						{% endif %}</td>
+				</tr>
+
+
+				<tr>
+					<th>Status</th>
+					{% if tree.is_removed %}
+					<td><span class="badge bg-danger">Removed</span></td>
+					{% elif tree.gps_error_ft == -1 %}
+					<td><span class="badge bg-warning">Missing / unknown status</span><br><p class="text-muted">Location shown is based on 2009 elm tree survey, but the tree was not yet located in 2022.</p></td>
+					{% else %}
+					<td>Existing</td>
+					{% endif %}
+				</tr>
+			</tbody>
+		</table>
+
+		{% if user.is_authenticated %}
+		<a class="float-end" href="/admin/inventory/tree/{{ tree.id }}/change/">Edit Tree Info</a>
+		{% endif %}
+
+
+
+
+
+		<h5 style="margin-top: 50px">Action Items</h5>
+		<table class="table table-sm">
+			<thead>
+				<tr>
+					<th>Date Opened</th>
+					<th>Date Closed</th>
+					<th>Remarks</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for ai in tree.actionitem_set.all %}
+
+				<tr>
+
+					<td data-order='{{ ai.date_opened|date:"Y-m-d" }}'>{{ ai.date_opened|date:"n/j/Y" }}</td>
+
+					{% if ai.date_closed is None %}
+					<td><span class="badge bg-warning">Open</span></td>
+					{% else %}
+					<td data-order='{{ ai.date_closed|date:"Y-m-d" }}'>{{ ai.date_closed|date:"n/j/Y" }}</td>
+					{% endif %}
+
+					<td>{{ ai.action_note|linebreaksbr }}</td>
+					<td><a href="/inventory/task/{{ ai.id }}/"><i class="bi bi-pencil-square float-end"></i></td>
+
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		
+
+		{% if user.is_authenticated %}
+		<a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#newActionItemModal">Create Action Item</a>
+		{% else %}
+		<a class="btn btn-primary" href="/admin/login/?next={{ request.path | urlencode }}" >Create Action Item</a>
+		{% endif %}
+
+
+		<h5 style="margin-top: 50px">Maintenance Log</h5>
+		<table class="table table-sm">
+			<thead>
+
+				<tr>
+					<th>Date</th>
+					<th>Condition</th>
+					<th>DED Status</th>
+					<th>DBH</th>
+					<th>Maintenance Done</th>
+					<th>Remarks</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for obs in tree.maintenanceentry_set.all %}
+
+				<tr>
+					<td data-order='{{ obs.date|date:"Y-m-d" }}'>{{ obs.date|date:"n/j/Y" }}</td>
+					<td>{{ obs.get_overall_condition_display }}</td>
+					<td>{{ obs.get_ded_status_display }}</td>
+
+					<td>{{ obs.dbh }}</td>
+					<td>{{ obs.maintenance_actions }}
+					<td>{{ obs.remarks }}</td>
+					<td>
+						<a href="/admin/inventory/maintenanceentry/{{ obs.id }}/change/"><i class="bi bi-pencil-square float-end"></i>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+
+		<a class="btn btn-primary"
+		{% if user.is_authenticated %}
+		href="/inventory/maintenance/{{ tree.tag }}/"
+		{% else %}
+		href="/admin/login/?next=/inventory/maintenance/{{ tree.tag }}/"
+		{% endif %}
+		>Add Log Entry</a>
+
+	</div>
+</div>
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="newActionItemModal" tabindex="-1" aria-labelledby="newActionItemModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form method="post">
+				{% csrf_token %}
+				<input type="hidden" name="referer" value="{{ request.META.HTTP_REFERER }}">
+
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="newActionItemModalLabel">Create New Action Item for Tree {{ tree.tag }}</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+
+					<div class="mb-3">
+						<label class="form-label">Date</label>
+						<input type="date" class="form-control" id="date" name="date">
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Remarks</label>
+						<textarea maxlengt="200" class="form-control" name="openedComment" placeholder="(optional)"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Save</button>
+				</div>
+
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+	document.getElementById("date").valueAsDate = new Date();
+</script>
+{% endblock %}
