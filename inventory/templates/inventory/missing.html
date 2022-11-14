@@ -1,106 +1,198 @@
 {% extends 'inventory/base.html' %}
 
 {% block content %}
-<div class="row">
-	<div class="col">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="/inventory">Inventory</a></li>
-				<li class="breadcrumb-item active" aria-current="page">Tree # {{ tree.tag }}</li>
-			</ol>
-		</nav>
+		
+		<div class="row">
+			<div class="col">
+				<h1>Trees Missing, Not Yet Seen in 2022, or No Location Info</h1>
+			</div>
+		</div>
 
-		<table class="table">
+	  <div class="row">
+		<div class="col-12 col-lg-9">
 
+			<div id="map" style="height:600px; width:100%"></div>
 
-			<tbody>
+	 	   </div>
+			<div class="col-12 col-lg-3">
+				<div class="card">
+					<ul class="list-group list-group-flush">
+					  <li class="list-group-item">
+						  <svg xmlns="http://www.w3.org/2000/svg"  width="40" height="40">
+							  <path stroke="black"
+								stroke-width="1" fill="#0F0"  d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
+							 </svg> 
+							 Existing Tree</li>
+					 
+								   <li class="list-group-item">
+								   <svg xmlns="http://www.w3.org/2000/svg"  width="40" height="40">
+									   <path stroke="black"
+										 stroke-width="1" fill="#AAA"  d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
+									  </svg> 
+									  Missing or not yet confirmed</li>
+				
+					</ul>
+				
+				  </div>
+			</div>
+		  
+	  </div>
+		<div class="mb-3">
+	
+	  
+	  
+	  
+	  <div class="row">
+		  <div class="col">
+	  
+	  
+			  <div class="table-responsive">
+				  <table class="table" id="tree-inventory-table">
+					  <thead>
+	  
+						  <tr>
+							  <th>Tag #</th>
+							  <th>GPS</th>
+							  <th>Address</th>
+							  <th>Location Remarks</th>
+							  <th>Owner (N/F)</th>
+							  <th>Public</th>
+	
+						  </tr>
+	  
+					  </thead>
+	  
+					  <tbody>
+						  {% for tree in tree_list %}
+						  
+						  {% if tree.latitude is None or tree.gps_error_ft == -1 %}
+	  
+						  <tr {% if tree.is_removed %} class="table-danger" style="text-decoration:line-through;" {% endif %}>
+							  <td {% if tree.tag.isnumeric %} data-order="{{ tree.tag }}" {% else %} data-order="1000" {% endif %}>
+								  <a href="/inventory/tree/{{ tree.tag }}/">{{ tree.tag }}</a>
+							  </td>
+	  
+							  <td>
+								  {% if tree.gps_error_ft == -1 %}
+								  Missing
+								  {% elif tree.latitude > 0 %}
+								  Located
+								  {% else %}
+								  <a href="/inventory/location/{{ tree.tag }}/">Add GPS</a>
+								  {% endif %}
+							  </td>
+	  
+							  <td data-order="'{{ tree.street_name }} {{ tree.street_number }}''">{{ tree.street_address }}</td>
+	  
+							  <td>{{ tree.location_remarks }}</td>
+							  <td>{{ tree.property_owner }}</td>
+	  
+	  
+							  <td>
+								  {% if tree.is_public %}Public{% else %}Private{% endif %}
+							  </td>
 
-				<tr>
-					<th>Tag</th>
-					<td>{{ tree.tag }}
-					{% if tree.old_tag %}
-
-						<span class="form-text">&nbsp;&nbsp;&nbsp;&nbsp;(old tag: {{ tree.old_tag }})</span>
-
-						{% endif %}
-					</td>
-
-				</tr>
-				<tr>
-					<th>Location</th>
-					<td> {% if tree.street_number %}
-						{{ tree.street_number }}
-						{% endif %}
-
-
-						{{ tree.street_name }} ({{ tree.side_of_street }} side)
-						{% if tree.location_remarks %}
-						<br>
-						{{ tree.location_remarks }}
-						{% endif %}
-
-						{% if tree.latitude > 0 %}
-
-						<br>
-						<br>
-
-						<iframe width="450" height="250" frameborder="0" style="border:0" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&maptype=satellite&q={{ tree.latitude }}%2C{{ tree.longitude }}" allowfullscreen>
-						</iframe>
-
-						{% endif %}
-
-					</td>
-				</tr>
-
-				<tr>
-					<th>Property Owner</th>
-					<td>
-						{{ tree.property_owner }}
-					</td>
-				</tr>
-
-
-
-				<tr>
-					<th>Public</th>
-					<td> {% if tree.is_public %}
-						Public
-						{% else %}
-						Private
-						{% endif %}</td>
-				</tr>
-
-
-				<tr>
-					<th>Status</th>
-					{% if tree.is_removed %}
-					<td><span class="badge bg-danger">Removed</span></td>
-					{% elif tree.gps_error_ft == -1 %}
-					<td><span class="badge bg-warning">Missing / unknown status</span><br><p class="text-muted">Location shown is based on 2009 elm tree survey, but the tree was not yet located in 2022.</p></td>
-					{% else %}
-					<td>Existing</td>
-					{% endif %}
-				</tr>
-			</tbody>
-		</table>
-
-		{% if user.is_authenticated %}
-		<a class="float-end" href="/admin/inventory/tree/{{ tree.id }}/change/">Edit Tree Info</a>
-		{% endif %}
-
-
-
-
-
-
-
-
-	</div>
-</div>
-
-
-
-
+						  </tr>
+						  
+						  {% endif %}
+						  
+						  {% endfor %}
+					  </tbody>
+				  </table>
+			  </div>
+		  </div>
+	  </div>
 
 {% endblock %}
+	  
+	  
+	  {% block script %}
+<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&callback=initMap&v=weekly"
+		defer
+	  ></script>
+	  <script>
+	  
+	  // Initialize and add the map
+	  function initMap() {
+	  
+		const castine = { lat: 44.390492, lng: -68.804612 };
+		
 
+		function pinSymbol(color) {
+			return {
+				path: 'M -15, 0 a 15,15 0 1,1 30,0 a 15,15 0 1,1 -30,0', // largish circle, good for including text
+				
+		
+				fillColor: color,
+				fillOpacity: 1,
+				strokeColor: '#555',
+				strokeWeight: 1,
+		
+		   };
+		}
+
+		const map = new google.maps.Map(document.getElementById("map"), {
+		  zoom: 15,
+		  center: castine,
+		});
+		
+		function createTreePin(tag, latitude, longitude, color) {
+			 var marker = new google.maps.Marker({
+			   position: { lat: latitude, lng: longitude },
+			   label: tag,
+			   title: tag,
+			   url: '/inventory/tree/' + tag,
+			   map: map,
+			   icon: pinSymbol(color)	
+			   
+			 });
+			
+
+			
+			
+			google.maps.event.addListener(marker, 'click', function() {
+				window.location.href = this.url;
+			});
+		}
+		
+		function markMissingTree(latitude, longitude, tag) {
+			createTreePin(tag, latitude, longitude, "#AAA");
+		}
+		
+		{% for tree in tree_list %}
+		{% if tree.latitude > 0 %}
+
+		{% if tree.is_removed %}
+		{% elif tree.gps_error_ft == -1 %}
+			createTreePin("{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, "#AAA");
+		{% else %}
+			createTreePin("{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, "#0F0");
+		{% endif %}	
+		
+		{% endif %}	
+		{% endfor %}
+		
+		
+	
+	  }
+
+	  
+	  window.initMap = initMap;
+	  
+	  
+	  
+	  var table = $('#tree-inventory-table').DataTable({
+		  paging: false,
+		  //searching: false,
+		  info: true,
+		  dom: '<"top"i>rt',
+		  
+	  });
+	  
+	  
+	  </script>
+	  {% endblock %}
+
+	
+</body>

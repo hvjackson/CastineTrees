@@ -24,13 +24,56 @@ def tree(request, tree_tag):
     tree = Tree.objects.get(tag=tree_tag)
     
     if request.method == 'POST':
-        ai = ActionItem(
-            date_opened = dateparse.parse_date(request.POST['date']),
-            opened_by = request.user,
-            action_note = request.POST['openedComment'],
-            tree_id = tree.id
+        if 'mark-as-existing' in request.POST:
+            tree.gps_error_ft = None
+            tree.save()
+        
+        elif 'mark-as-removed' in request.POST:
+
+
+            new_maint = MaintenanceEntry (
+                tree_id = tree.id,
+                logged_by = request.user,
+                remarks = '',
+                overall_condition = '',
+                ded_status = '',
+                
+                dbh = '',
+                general_crown = '',
+                foliage = '',
+                structure = '',
+                deadwood_present = '',
+                
+                arbotect_application = False,
+                alamo_application = False,
+                cambistat_application = False,
+                pruned = False,
+                tested_ded = False,
+                removed = True,
+                stump_ground = False,
             )
-        ai.save()
+            
+            new_maint.date = dateparse.parse_date(request.POST['removed-date'])
+            if (new_maint.date is None):
+                new_maint.date = tree.maintenanceentry_set.order_by('-date')[0].date
+                new_maint.remarks = 'Date unknown'
+            
+            new_maint.save()
+            
+            tree.gps_error_ft = None
+            tree.save()
+            
+        
+        elif 'submit-action-item' in request.POST:
+            print("new action item")
+            ai = ActionItem(
+                date_opened = dateparse.parse_date(request.POST['date']),
+                opened_by = request.user,
+                action_note = request.POST['openedComment'],
+                tree_id = tree.id
+                )
+            ai.save()
+            
         return HttpResponseRedirect("#")
     
     template = loader.get_template('inventory/tree.html')
@@ -40,19 +83,19 @@ def tree(request, tree_tag):
     }
     return HttpResponse(template.render(context, request))
     
-def missing(request, tree_tag):
+def missing(request):
     
-    tree = Tree.objects.get(tag=tree_tag)
-    
-    if request.method == 'POST':
-        return HttpResponseRedirect("#")
+    tree_list = Tree.objects.all().select_related()
+
     
     template = loader.get_template('inventory/missing.html')
     context = {
-        'page_title': "Tree #" + tree.tag + " Info",
-        'tree': tree,
+        'page_title': "Map",
+        'tree_list': tree_list
     }
     return HttpResponse(template.render(context, request))
+    
+    
 
 def location(request, tree_tag):
     t = Tree.objects.get(tag=tree_tag)
@@ -115,6 +158,12 @@ def maintenance(request, tree_tag):
         )
         new_maint.save()
         
+        # If the tree is being marked as removed, it's no longer "missing":
+        if ('removedCheckbox' in request.POST) & (t.gps_error_ft == -1):
+            t.gps_error_ft = None
+            t.save()
+            
+        
         if request.POST['actionItemText'] and not request.POST['actionItemText'].isspace():
             new_ai = ActionItem(
                 date_opened = dateparse.parse_date(request.POST['date']),
@@ -161,6 +210,14 @@ def map(request):
     }
     return HttpResponse(template.render(context, request))
 
+class treatment_summary:
+    def __init__(self): # constructor
+        self.public_number = 0
+        self.private_number = 0
+        self.public_dbh = 0
+        self.private_dbh = 0
+        self.public_trees = [ ]
+        self.private_trees = [ ]
     
 def report(request):
     tree_removals = { }
@@ -174,14 +231,24 @@ def report(request):
         tree_removals[y] = removals
         
         if y >= 2016:
-            ar_treatments = list(
-                (this_year & (MaintenanceEntry.objects.filter(arbotect_application=True)))
-                ) 
+            arbotect_this_year = treatment_summary()
+            
+            for t in list(this_year & (MaintenanceEntry.objects.filter(arbotect_application=True))):
+                
+                if (t.tree.is_public):
+                    arbotect_this_year.public_number += 1
+                    arbotect_this_year.public_dbh += t.tree.total_dbh_in_year(y)
+                    arbotect_this_year.public_trees.append(t.tree)
+                else:
+                    arbotect_this_year.private_number += 1
+                    arbotect_this_year.private_dbh += t.tree.total_dbh_in_year(y)
+                    arbotect_this_year.private_trees.append(t.tree)
+            
             al_treatments = list(
                 (this_year & (MaintenanceEntry.objects.filter(alamo_application=True)))
                 ) 
         
-            arbotect_treatments[y] = ar_treatments
+            arbotect_treatments[y] = arbotect_this_year
             alamo_treatments[y] = al_treatments
 
 
@@ -241,10 +308,6 @@ def task(request, task_id):
         return HttpResponse(template.render(context, request))
 
 
-def gis(request):
-    template = loader.get_template('inventory/gis.html')
-    context = { }
-    return HttpResponse(template.render(context, request))
     
 
 def export(request):

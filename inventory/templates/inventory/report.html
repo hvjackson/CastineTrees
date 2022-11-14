@@ -25,10 +25,18 @@
 		  <table class="table">
 			  <thead>
 				  <tr>
-						<th>Year</th>
-						<th>#</th>
-						<th>DBH</th>
-						<th>Trees Treated</th>
+					<th></th>
+					  <th colspan="3"><h5>Public</h5></th>
+						<th colspan="3"><h5>Private</h5></th>
+				  </tr>
+				  <tr>
+					  <th>Year</th>
+					  <th style="border-left-width: 1px;">#</th>
+					  <th>DBH</th>
+					  <th>Trees</th>
+					  <th style="border-left-width: 1px;">#</th>
+					  <th>DBH</th>
+					  <th>Trees</th>
 				  </tr>
 			  </thead>
 			  <tbody>
@@ -36,11 +44,27 @@
 					{% for y, rm_list in arbotect_treatments.items %}
 					<tr>
 						<td> {{ y }}</td>
-						<td> {{ rm_list|length }}</td>
-						<td>TK</td>
+						<td style="border-left-width: 1px;"> {{ rm_list.public_number }}</td>
+						<td> {{ rm_list.public_dbh }}</td>
 						<td>
-							{% for t in rm_list %}
-							<a href="/inventory/tree/{{ t.tree.tag }}/">{{ t.tree.tag }}</a>
+							{% for t in rm_list.public_trees %}
+								<a href="/inventory/tree/{{ t.tag }}/">
+									<span
+									{% if t.is_removed %}
+									style="text-decoration: line-through;"
+									{% endif %}
+									>
+									{{ t.tag }}
+									</span>
+								</a>
+							{% endfor %}
+						</td>
+						
+						<td style="border-left-width: 1px;"> {{ rm_list.private_number }}</td>
+						<td> {{ rm_list.private_dbh }}</td>
+						<td>
+							{% for t in rm_list.private_trees %}
+								<a href="/inventory/tree/{{ t.tag }}/">{{ t.tag }}</a>
 							{% endfor %}
 						</td>
 						</tr>

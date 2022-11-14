@@ -93,17 +93,20 @@ class Tree(models.Model):
 		""" Gets the total DBH (adding up stems if necessary) in the year, or an earlier year if necessary """
 		
 		obs = self.maintenanceentry_set.order_by('-date')
-		total = 0
-		
+
 		for o in obs:
 			if o.date.year > year:
 				continue;
 			if o.dbh:
 				parts = o.dbh.replace(', ', ',').split(',')
-				for stem in parts
+				total = 0
+						
+				for stem in parts:
 					total += int(stem)
+
+				return total
 		
-		return total
+		return 0
 		
         
 class MaintenanceEntry(models.Model):

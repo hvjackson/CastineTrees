@@ -84,7 +84,55 @@
 					{% if tree.is_removed %}
 					<td><span class="badge bg-danger">Removed</span></td>
 					{% elif tree.gps_error_ft == -1 %}
-					<td><span class="badge bg-warning">Missing / unknown status</span><br><p class="text-muted">Location shown is based on 2009 elm tree survey, but the tree was not yet located in 2022.</p></td>
+					<td>
+						<span class="badge bg-warning">Missing / unknown status</span><br><p class="text-muted">Location shown is based on 2009 elm tree survey, but the tree was not yet located in 2022.</p>
+						<p>
+						  <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#resolveMissingPanel" aria-expanded="false" aria-controls="resolveMissingPanel">
+							Resolve missing tree
+						  </button>
+						</p>
+						<div class="collapse" id="resolveMissingPanel">
+							<div class="card">
+								<div class="card-header">
+								  Resolve Missing Tree
+								  
+								  
+								  
+								  <button type="button" class="btn-close float-end" data-bs-toggle="collapse" data-bs-target="#resolveMissingPanel" aria-expanded="false" aria-controls="resolveMissingPanel" aria-label="Close"></button>
+								</div>
+						  <div class="card-body">
+							<form method="post">
+							{% csrf_token %}
+							<input type="hidden" name="referer" value="{{ request.META.HTTP_REFERER }}">
+
+							<div class="row">
+								<div class="col-12 col-md-5">
+									<button class="btn btn-success" type="submit" name="mark-as-existing" >
+										Mark tree as "existing"
+									  </button>
+									  <p class="form-text">If the tree has been located in 2022</p>
+								</div>
+								<div class="col-12 col-md-5">
+									<button class="btn btn-danger" type="submit" name="mark-as-removed">
+										Mark tree as "removed"
+									  </button>
+									  <div class="mb-3">
+										  <label class="form-label">Removed Date</label>
+										  <input type="date" class="form-control" name="removed-date">
+									  </div>
+									  <p class="form-text">Best guess for removed date. If left blank this will default to the date of last known maintenance.</p>
+								</div>
+			
+							</div>
+							
+							</form>
+						  </div>
+							
+					
+	
+						  </div>
+						</div>
+					</td>
 					{% else %}
 					<td>Existing</td>
 					{% endif %}
@@ -216,7 +264,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Save</button>
+					<button type="submit" name="submit-action-item" class="btn btn-primary">Save</button>
 				</div>
 
 			</form>
