@@ -1,0 +1,145 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+		
+		
+		
+	  <div class="row">
+		<div class="col">
+			
+<span class="fs-4" style="font-family: 'Alegreya SC Medium'; font-size: 1.8rem !important">Arbotect Treatments and Recent Removals</span>
+
+	
+		
+		<div id="map" style="height:800px; width:100%"></div>
+
+	  </div>
+	  <div class="mb-3"></div>
+	  <div class="row">
+		  <div class="col-12 col-md-6">
+			  <h5>Legend</h5>
+			  <div class="card">
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item">
+					   <svg xmlns="http://www.w3.org/2000/svg"  width="40" height="40">
+						   <path stroke="black"
+							 stroke-width="1" fill="{{ pin_colors.blue }}"   d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
+						  </svg> 
+						  Treated with Arobtect Recently (since {{ cutoff_year }})</li>
+						  
+				  <li class="list-group-item">
+					  <svg xmlns="http://www.w3.org/2000/svg"  width="40" height="40">
+						  <path stroke="black"
+							stroke-width="1" fill="{{ pin_colors.green }}"   d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
+						 </svg> 
+						 Existing Tree</li>
+				  <li class="list-group-item">
+						 <svg xmlns="http://www.w3.org/2000/svg"  width="40" height="40">
+							 <path stroke="black"
+							   stroke-width="1" fill="{{ pin_colors.yellow }}"   d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
+							</svg> 
+							Existing Tree - DED supected or confirmed</li>
+							<li class="list-group-item">
+							<svg xmlns="http://www.w3.org/2000/svg"  width="40" height="40">
+								<path stroke="black"
+								  stroke-width="1" fill="{{ pin_colors.red }}" d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
+							   </svg> 
+							   Removed Recently (since {{ cutoff_year }})</li>
+
+							   
+								 <li class="list-group-item">
+									 <p>Trees that are <a href="{% url 'missing' %}">Missing</a> are not included on this map.</p>
+									 <p>Click on a tag to go to tree detail page</p>
+								 </li>
+				</ul>
+
+			  </div>
+		  </div>
+	  </div>
+
+{% endblock %}
+	  
+	  
+	  {% block script %}
+<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&callback=initMap&v=weekly"
+		defer
+	  ></script>
+	  <script>
+	  
+	  // Initialize and add the map
+	  function initMap() {
+	  
+		const castine = { lat: 44.390492, lng: -68.804612 };
+		
+		function pinSymbol(color) {
+			return {
+				 path: 'M -15, 0 a 15,15 0 1,1 30,0 a 15,15 0 1,1 -30,0', // largish circle, good for including text
+				//path: 'M -10, 0 a 10,10 0 1,1 20,0 a 10,10 0 1,1 -20,0', // smaller circle (no text)
+				
+				fillColor: color,
+				fillOpacity: 1,
+				strokeColor: '#666',
+				strokeWeight: 1,
+
+		   };
+		}
+
+		const map = new google.maps.Map(document.getElementById("map"), {
+		  zoom: 16,
+		  center: { lat: 44.387779, lng: -68.801533 }
+		});
+		
+		function createTreePin(tag, latitude, longitude, color) {
+			 var marker = new google.maps.Marker({
+			   position: { lat: latitude, lng: longitude },
+			   label: tag,
+			   title: tag,
+			   url: '/inventory/tree/' + tag,
+			   map: map,
+			   icon: pinSymbol(color)	
+			   
+			 });
+			
+
+			
+			
+			google.maps.event.addListener(marker, 'click', function() {
+				window.location.href = this.url;
+			});
+		}
+		
+		function markMissingTree(latitude, longitude, tag) {
+			createTreePin(tag, latitude, longitude, "#AAA");
+		}
+
+		
+		
+		{% for tree in removed_trees %}
+			createTreePin("{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, "{{ pin_colors.red }}");
+		{% endfor %}
+		{% for tree in treated_trees %}
+			createTreePin("{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, "{{ pin_colors.blue }}");
+		{% endfor %}
+		{% for tree in ded_trees %}
+			createTreePin("{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, "{{ pin_colors.yellow }}");
+		{% endfor %}
+		{% for tree in existing_trees %}
+			createTreePin("{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, "{{ pin_colors.green }}");
+		{% endfor %}
+		
+	
+	  }
+	  
+	  
+
+	  
+
+	  
+	  
+	  window.initMap = initMap;
+	  </script>
+	  {% endblock %}
+
+	
+</body>
