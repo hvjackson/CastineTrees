@@ -85,16 +85,16 @@
 					<td><span class="badge bg-danger">Removed</span></td>
 					{% elif tree.gps_error_ft == -1 %}
 					<td>
-						<span class="badge bg-warning">Missing / unknown status</span><br><p class="text-muted">Location shown is based on 2009 elm tree survey, but the tree was not yet located in 2022.</p>
+						<span class="badge bg-warning">Unverified</span><br><p class="text-muted">This tree has not yet been located in 2022.</p>
 						<p>
 						  <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#resolveMissingPanel" aria-expanded="false" aria-controls="resolveMissingPanel">
-							Resolve missing tree
+							Resolve unverfied tree
 						  </button>
 						</p>
 						<div class="collapse" id="resolveMissingPanel">
 							<div class="card">
 								<div class="card-header">
-								  Resolve Missing Tree
+								  Resolve unverfied Tree
 								  
 								  
 								  
@@ -120,7 +120,7 @@
 										  <label class="form-label">Removed Date</label>
 										  <input type="date" class="form-control" name="removed-date">
 									  </div>
-									  <p class="form-text">Best guess for removed date. If left blank this will default to the date of last known maintenance.</p>
+									  <p class="form-text">Best guess for removed date.</p>
 								</div>
 			
 							</div>

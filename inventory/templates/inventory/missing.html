@@ -4,7 +4,7 @@
 		
 		<div class="row">
 			<div class="col">
-				<h1>Trees Missing, Not Yet Seen in 2022, or No Location Info</h1>
+				<span class="fs-4" style="font-family: 'Alegreya SC Medium'; font-size: 1.8rem !important">Unverified Trees (Not Yet Seen in 2022)</span>
 			</div>
 		</div>
 
@@ -29,7 +29,7 @@
 									   <path stroke="black"
 										 stroke-width="1" fill="#AAA"  d="M 1 16 a 15 15 0 1 1 30 0 a 15 15 0 1 1 -30 0" />
 									  </svg> 
-									  Missing or not yet confirmed</li>
+									  Unverified (not yet confirmed in 2022)</li>
 				
 					</ul>
 				
@@ -74,7 +74,7 @@
 	  
 							  <td>
 								  {% if tree.gps_error_ft == -1 %}
-								  Missing
+								  Unverified
 								  {% elif tree.latitude > 0 %}
 								  Located
 								  {% else %}

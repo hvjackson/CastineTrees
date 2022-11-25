@@ -60,9 +60,11 @@ def maintenance_export(request):
 		'deadwood',
 		'arbotect',
 		'alamo',
+		'cambistat',
 		'pruned',
 		'tested DED',
-		'removed'
+		'removed',
+		'stump ground'
 		
 	])
 	
@@ -84,9 +86,11 @@ def maintenance_export(request):
 			m.get_deadwood_present_display(),
 			m.arbotect_application,
 			m.alamo_application,
+			m.cambistat_application,
 			m.pruned,
 			m.tested_ded,
-			m.removed
+			m.removed,
+			m.stump_ground
 			
 		])
 			

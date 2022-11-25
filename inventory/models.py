@@ -37,12 +37,13 @@ class Tree(models.Model):
 	def is_removed(self):
 		return self.maintenanceentry_set.filter(removed=True).count() > 0
 		
-	def is_removed_in_last_year(self):
+	def is_removed_since(self, cutoff):
+		''' Returns True if this tree was removed on or after the specified cutoff '''
+		
 		obs = self.maintenanceentry_set.all()
-		cutoff = (datetime.today() - timedelta(days=365)).date()
 	
 		for o in obs:
-			if o.date > cutoff and o.removed:
+			if o.date >= cutoff and o.removed:
 				return True
 		
 		return False
@@ -87,7 +88,17 @@ class Tree(models.Model):
 				return m.date
 	
 		return None	
-		
+	
+	def is_arbotect_treated_since(self, cutoff):
+		''' Returns True if this tree was treated on or after the specified cutoff '''
+	
+		obs = self.maintenanceentry_set.all()
+	
+		for o in obs:
+			if o.date >= cutoff and o.arbotect_application:
+				return True
+	
+		return False
 	
 	def total_dbh_in_year(self, year: int) -> int:
 		""" Gets the total DBH (adding up stems if necessary) in the year, or an earlier year if necessary """

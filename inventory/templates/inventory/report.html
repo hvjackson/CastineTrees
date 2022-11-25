@@ -128,6 +128,14 @@
 					</thead>
 					<tbody>
 
+						<tr>
+							<td>Unknown</td>
+							<td>{{ undated_removals|length }}</td>
+							<td>	
+								{% for t in undated_removals %}
+								<a href="/inventory/tree/{{ t.tree.tag }}/">{{ t.tree.tag }}</a>
+								{% endfor %}</td>
+						</tr>
 
 						{% for y, rm_list in tree_removals.items %}
 						<tr>

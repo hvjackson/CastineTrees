@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import dateparse
 
 from .models import Tree, MaintenanceEntry, ActionItem
-from datetime import datetime
+import datetime
 
 
 def index(request):
@@ -55,8 +55,8 @@ def tree(request, tree_tag):
             
             new_maint.date = dateparse.parse_date(request.POST['removed-date'])
             if (new_maint.date is None):
-                new_maint.date = tree.maintenanceentry_set.order_by('-date')[0].date
-                new_maint.remarks = 'Date unknown'
+                new_maint.date = datetime.date(1900, 1, 1)
+
             
             new_maint.save()
             
@@ -90,7 +90,7 @@ def missing(request):
     
     template = loader.get_template('inventory/missing.html')
     context = {
-        'page_title': "Map",
+        'page_title': "Missing Trees",
         'tree_list': tree_list
     }
     return HttpResponse(template.render(context, request))
@@ -209,6 +209,50 @@ def map(request):
         'removed_count': removed
     }
     return HttpResponse(template.render(context, request))
+    
+    
+def map_arbotect(request):
+    removed_trees = []
+    treated_trees = []
+    ded_trees = []
+    existing_trees = []
+    
+    cutoff = datetime.date(datetime.date.today().year - 2, 1, 1)
+    
+    for tree in Tree.objects.all().select_related():
+        if tree.latitude is None:
+            pass # skip trees with no location
+        elif tree.is_removed_since(cutoff):
+            removed_trees.append(tree)
+        elif tree.is_removed():
+            pass # skip removed trees
+        elif tree.gps_error_ft == -1:
+            pass # skip trees that are missing
+        elif tree.is_arbotect_treated_since(cutoff):
+            treated_trees.append(tree)
+        elif tree.has_ded() :
+            ded_trees.append(tree)
+        else:
+            existing_trees.append(tree)
+            
+    
+    template = loader.get_template('inventory/map-arbotect.html')
+    context = {
+        'page_title': "Map of Arbotect Treatments",
+        'removed_trees': removed_trees,
+        'treated_trees': treated_trees,
+        'ded_trees': ded_trees,
+        'existing_trees': existing_trees,
+        'cutoff_year': cutoff.year,
+        'pin_colors': {
+            'blue': "#4193e0",
+            'green': "#0F0",
+            'red': "#F00",
+            'yellow': '#FD0',
+            'gray': ''
+        }
+    }
+    return HttpResponse(template.render(context, request))
 
 class treatment_summary:
     def __init__(self): # constructor
@@ -220,11 +264,15 @@ class treatment_summary:
         self.private_trees = [ ]
     
 def report(request):
+    undated_removals = [ ]
     tree_removals = { }
     arbotect_treatments = { }
     alamo_treatments = { }
     
-    for y in range(2010, datetime.today().year + 1):
+    undated_entries = MaintenanceEntry.objects.filter(date__year=1900)
+    undated_removals = list(undated_entries & MaintenanceEntry.objects.filter(removed=True))
+    
+    for y in range(2010, datetime.date.today().year + 1):
         this_year = MaintenanceEntry.objects.filter(date__year=y)
         
         removals = list(this_year & MaintenanceEntry.objects.filter(removed=True))
@@ -255,6 +303,7 @@ def report(request):
     template = loader.get_template('inventory/report.html')
     context = {
         'page_title': "Summary",
+        'undated_removals': undated_removals,
         'tree_removals': tree_removals,
         'arbotect_treatments': arbotect_treatments,
         'alamo_treatments': alamo_treatments
@@ -310,8 +359,8 @@ def task(request, task_id):
 
     
 
-def export(request):
-    template = loader.get_template('inventory/export.html')
+def about(request):
+    template = loader.get_template('inventory/about.html')
     context = { }
     return HttpResponse(template.render(context, request))
     

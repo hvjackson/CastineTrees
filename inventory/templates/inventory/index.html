@@ -33,7 +33,7 @@
 						<select class="form-select" id="select-location">
 							<option value="" selected>(any)</option>
 							<option value="Located">Located</option>
-							<option value="Missing">Missing / unverified</option>
+							<option value="Unverified">Unverified</option>
 							<option value="Add GPS">No location info</option>
 						</select>
 					</div>
@@ -89,7 +89,7 @@
 
 						<td>
 							{% if tree.gps_error_ft == -1 %}
-							Missing
+							Unverified
 							{% elif tree.latitude > 0 %}
 							Located
 							{% else %}
