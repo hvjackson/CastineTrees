@@ -200,7 +200,7 @@ def map(request):
             untagged += 1
         
     
-    template = loader.get_template('inventory/map-ded.html')
+    template = loader.get_template('inventory/map.html')
     context = {
         'page_title': "Map",
         'tree_list': tree_list,
@@ -249,6 +249,7 @@ def map_arbotect(request):
             'green': "#0F0",
             'red': "#F00",
             'yellow': '#FD0',
+            'purple': '#F0F',
             'gray': ''
         }
     }

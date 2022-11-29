@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from . import views, csv
 
@@ -17,4 +19,4 @@ urlpatterns = [
     path('export/trees', csv.tree_export, name='tree_export'),
     path('export/maintenance', csv.maintenance_export, name='maintenance_export'),
     path('export/tasks', csv.action_export, name='action_export')
-] 
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
