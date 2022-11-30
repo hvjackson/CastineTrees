@@ -28,12 +28,21 @@
 				</tr>
 				<tr>
 					<th>Location</th>
-					<td> {% if tree.street_number %}
-						{{ tree.street_number }}
+					<td>
+						{% if tree.street_name %}
+
+							{% if tree.street_number %}
+								{{ tree.street_number }}
+							{% endif %}
+						
+							{{ tree.street_name }}
+
+						{% else %}
+							{{ tree.tax_lot.lot_address }}
 						{% endif %}
 
-
-						{{ tree.street_name }} ({{ tree.side_of_street }} side)
+						({{ tree.side_of_street }} side)
+						
 						{% if tree.location_remarks %}
 						<br>
 						{{ tree.location_remarks }}
@@ -63,10 +72,25 @@
 				<tr>
 					<th>Property Owner</th>
 					<td>
-						{{ tree.property_owner }}
+						{{ tree.tax_lot.owner_name }}
 					</td>
 				</tr>
-
+				<tr>
+					<th>Tax Lot</th>
+					<td>
+						<a href="/inventory/lot/{{ tree.tax_lot.lot_number }}">{{ tree.tax_lot.lot_number }}</a>
+					</td>
+				</tr>
+				
+				
+				{% if tree.street_name %}
+				<tr>
+					<th>Property Address</th>
+					<td>
+						{{ tree.tax_lot.lot_address }}
+					</td>
+				</tr>
+				{% endif %}
 
 
 				<tr>

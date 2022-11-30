@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.urls import reverse
 from django.utils import dateparse
 
-from .models import Tree, MaintenanceEntry, ActionItem
+from .models import Tree, MaintenanceEntry, ActionItem, TaxLot
 import datetime
 
 
@@ -21,7 +21,10 @@ def index(request):
 
 def tree(request, tree_tag):
     
-    tree = Tree.objects.get(tag=tree_tag)
+    try:
+        tree = Tree.objects.get(tag=tree_tag)
+    except:
+        tree = Tree.objects.get(id=tree_tag)
     
     if request.method == 'POST':
         if 'mark-as-existing' in request.POST:
@@ -95,6 +98,26 @@ def missing(request):
     }
     return HttpResponse(template.render(context, request))
     
+def lot(request, lot_number):
+    tax_lot = TaxLot.objects.get(lot_number=lot_number)
+    tree_list = Tree.objects.filter(tax_lot_id=lot_number)
+    
+    
+    minLat = min([t.latitude for t in tree_list])
+    maxLat = max([t.latitude for t in tree_list])
+    minLong = min([t.longitude for t in tree_list])
+    maxLong = max([t.longitude for t in tree_list])
+
+   
+    template = loader.get_template('inventory/lot.html')
+    context = {
+       'page_title': "Tax Lot" + lot_number,
+       'tree_list': tree_list,
+       'tax_lot': tax_lot,
+       'map_center_lat': (minLat + maxLat) / 2,
+       'map_center_long': (minLong + maxLong) / 2
+    }
+    return HttpResponse(template.render(context, request)) 
     
 
 def location(request, tree_tag):

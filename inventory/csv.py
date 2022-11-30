@@ -17,7 +17,7 @@ def tree_export(request):
 	writer = csv.writer(response)
 	
 	
-	writer.writerow(['tag', 'old tag', 'is public', 'address', 'side of street', 'location remarks', 'property owner', 'lat', 'long'])
+	writer.writerow(['tag', 'old tag', 'is public', 'address', 'side of street', 'location remarks', 'property owner', 'tax lot', 'lat', 'long'])
 	
 	tree_list = Tree.objects.all().select_related()
 
@@ -30,7 +30,8 @@ def tree_export(request):
 			t.street_address(),
 			t.side_of_street,
 			t.location_remarks,
-			t.property_owner,
+			t.tax_lot.owner_name if t.tax_lot else "",
+			t.tax_lot.lot_number if t.tax_lot else "",
 			t.latitude,
 			t.longitude,
 		])

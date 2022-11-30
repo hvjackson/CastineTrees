@@ -7,6 +7,7 @@ from . import views, csv
 urlpatterns = [
     path('', views.index, name='index'),
     path('tree/<slug:tree_tag>/', views.tree, name='tree'),
+	path('lot/<slug:lot_number>/', views.lot, name='lot'),
     path('missing/', views.missing, name='missing'),
     path('location/<slug:tree_tag>/', views.location, name='location'),
     path('maintenance/<slug:tree_tag>/', views.maintenance, name='maintenance'),

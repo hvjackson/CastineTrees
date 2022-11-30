@@ -5,10 +5,12 @@ from django.contrib import admin
 from .models import Tree
 from .models import MaintenanceEntry
 from .models import ActionItem
+from .models import TaxLot
 
 admin.site.register(Tree)
 admin.site.register(MaintenanceEntry)
 admin.site.register(ActionItem)
+admin.site.register(TaxLot)
 
 
 

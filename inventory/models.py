@@ -3,6 +3,18 @@ from django.contrib.auth.models import User
 import html
 from datetime import datetime, timedelta
 
+class TaxLot(models.Model):
+	class Meta:
+		ordering = ['lot_number']
+	
+	lot_number = models.CharField(max_length=10, primary_key=True, editable=False)
+	lot_address = models.CharField(max_length=50)
+	owner_name = models.CharField(max_length=50)
+
+	def __str__(self):
+		return self.lot_number + " " + self.lot_address
+	
+	
 
 
 class Tree(models.Model):
@@ -23,7 +35,7 @@ class Tree(models.Model):
 		blank = True,
 	)
 	location_remarks = models.CharField(max_length=100, blank = True)
-	property_owner = models.CharField(max_length=100, blank = True)
+	tax_lot = models.ForeignKey(TaxLot, on_delete=models.PROTECT, null = True)
 	
 	def __str__(self):
 		return self.tag
@@ -118,6 +130,8 @@ class Tree(models.Model):
 				return total
 		
 		return 0
+
+
 		
         
 class MaintenanceEntry(models.Model):
