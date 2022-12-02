@@ -1,0 +1,135 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+		
+		<div class="row">
+			<div class="col">
+				<span class="fs-4" style="font-family: 'Alegreya SC Medium'; font-size: 1.8rem !important">Removed Trees (Unknown Date)</span>
+			</div>
+		</div>
+
+	  <div class="row">
+		<div class="col-12">
+			<div id="map" style="height:600px; width:100%"></div>
+	 	</div>
+
+		  
+	  </div>
+		<div class="mb-3">
+	
+	  
+	  
+	  
+	  <div class="row">
+		  <div class="col">
+	  
+	  
+			  <div class="table-responsive">
+				  <table class="table" id="tree-inventory-table">
+					  <thead>
+	  
+						  <tr>
+							  <th>Tag #</th>
+							  <th>GPS</th>
+							  <th>Address</th>
+							  <th>Location Remarks</th>
+							  <th>Owner (N/F)</th>
+							  <th>Public</th>
+	
+						  </tr>
+	  
+					  </thead>
+	  
+					  <tbody>
+						  {% for tree in tree_list %}
+						  
+	  
+						  <tr {% if tree.is_removed %} class="table-danger" style="text-decoration:line-through;" {% endif %}>
+							  <td {% if tree.tag.isnumeric %} data-order="{{ tree.tag }}" {% else %} data-order="1000" {% endif %}>
+								  <a href="/inventory/tree/{{ tree.tag }}/">{{ tree.tag }}</a>
+							  </td>
+	  
+							  <td>
+								  {% if tree.gps_error_ft == -1 %}
+								  Unverified
+								  {% elif tree.latitude > 0 %}
+								  Located
+								  {% else %}
+								  <a href="/inventory/location/{{ tree.tag }}/">Add GPS</a>
+								  {% endif %}
+							  </td>
+	  
+							  <td data-order="'{{ tree.street_name }} {{ tree.street_number }}''">{{ tree.street_address }}</td>
+	  
+							  <td>{{ tree.location_remarks }}</td>
+							  <td>{{ tree.tax_lot.owner_name }}</td>
+	  
+	  
+							  <td>
+								  {% if tree.is_public %}Public{% else %}Private{% endif %}
+							  </td>
+
+						  </tr>
+						  
+						  
+						  {% endfor %}
+					  </tbody>
+				  </table>
+			  </div>
+		  </div>
+	  </div>
+
+{% endblock %}
+	  
+	  
+	  {% block script %}
+		<script src="/static/mapping.js"></script>
+<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABHi5hOb62Ku_9JUf-_wJyvO4bpGCV6iU&callback=initMap&v=weekly"
+		defer
+	  ></script>
+	  <script>
+	  
+	  // Initialize and add the map
+	  function initMap() {
+	  
+	
+
+		const map = new google.maps.Map(document.getElementById("map"), {
+		  zoom: 15,
+		  center: castineCenter,
+		});
+		
+	
+		
+		
+		{% for tree in tree_list %}
+		{% if tree.latitude > 0 %}
+			createTreePin(map, "{{ tree.tag }}", {{ tree.latitude}}, {{ tree.longitude}}, colors.red);
+		{% endif %}	
+		{% endfor %}
+		
+		
+	
+	startShowingPhoneLocation(map);
+	  }
+
+	  
+	  window.initMap = initMap;
+	  
+	  
+	  
+	  var table = $('#tree-inventory-table').DataTable({
+		  paging: false,
+		  //searching: false,
+		  info: true,
+		  dom: '<"top"i>rt',
+		  
+	  });
+	  
+	  
+	  </script>
+	  {% endblock %}
+
+	
+</body>

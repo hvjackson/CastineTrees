@@ -97,6 +97,21 @@ def missing(request):
         'tree_list': tree_list
     }
     return HttpResponse(template.render(context, request))
+
+
+        
+def removed(request):
+    
+    removed_events = list(MaintenanceEntry.objects.filter(removed=True))
+        
+    tree_list = [e.tree for e in removed_events if e.date.year == 1900]
+
+    template = loader.get_template('inventory/removed.html')
+    context = {
+        'page_title': "Removed Trees (Unknown DatE)",
+        'tree_list': tree_list
+    }
+    return HttpResponse(template.render(context, request))
     
 def lot(request, lot_number):
     tax_lot = TaxLot.objects.get(lot_number=lot_number)

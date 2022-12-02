@@ -43,7 +43,7 @@ function locationError(error) {
 	if (error.code == 1) {
 		//alert("Access to location denied. You may have to enable location sharing in your phone's settings.");
 	} else {
-		alert("Unable to get location data:\r\n" + "Error code: " + error.code + "\r\nMessage: " + error.message);
+		//alert("Unable to get location data:\r\n" + "Error code: " + error.code + "\r\nMessage: " + error.message);
 	}
 }
 

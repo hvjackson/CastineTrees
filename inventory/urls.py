@@ -9,6 +9,7 @@ urlpatterns = [
     path('tree/<slug:tree_tag>/', views.tree, name='tree'),
 	path('lot/<slug:lot_number>/', views.lot, name='lot'),
     path('missing/', views.missing, name='missing'),
+	path('removed/', views.removed, name='removed'),
     path('location/<slug:tree_tag>/', views.location, name='location'),
     path('maintenance/<slug:tree_tag>/', views.maintenance, name='maintenance'),
     path('map', views.map, name='map'),

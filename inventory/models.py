@@ -7,7 +7,7 @@ class TaxLot(models.Model):
 	class Meta:
 		ordering = ['lot_number']
 	
-	lot_number = models.CharField(max_length=10, primary_key=True, editable=False)
+	lot_number = models.CharField(max_length=10, primary_key=True)
 	lot_address = models.CharField(max_length=50)
 	owner_name = models.CharField(max_length=50)
 
@@ -28,14 +28,14 @@ class Tree(models.Model):
 	longitude = models.FloatField(blank = True, null = True)
 	gps_error_ft = models.FloatField(blank = True, null = True)
 	street_number = models.IntegerField(blank = True, null = True)
-	street_name = models.CharField(max_length = 50)
+	street_name = models.CharField(max_length = 50, blank = True, null = True)
 	side_of_street = models.CharField(
 		max_length = 1,
 		choices=[('N', 'North'), ('S', 'South'), ('E', 'East'), ('W', 'West')],
 		blank = True,
 	)
 	location_remarks = models.CharField(max_length=100, blank = True)
-	tax_lot = models.ForeignKey(TaxLot, on_delete=models.PROTECT, null = True)
+	tax_lot = models.ForeignKey(TaxLot, on_delete=models.PROTECT, null = True, blank = True)
 	
 	def __str__(self):
 		return self.tag
